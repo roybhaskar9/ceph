@@ -1,0 +1,51 @@
+#Four servers
+#ceph-admin
+#ceph-node1
+#ceph-node2
+#ceph-node3
+#they should all have passwordless authentication as root user from ceph-admin to all other nodes
+#ssh-keygen -t rsa
+#ssh-copy-id root@ceph-node1
+#ssh-copy-id root@ceph-node2
+#ssh-copy-id root@ceph-node3
+
+#All node machines should have volumegroup name as disks and four lvm volumes named d1, d2, d3, d4
+#Login to ceph-admin
+yum install -y epel-release
+cat > /etc/yum.repos.d/ceph.repo << '__EOF__'
+[CEPH-noarch]
+name = Ceph noarch packages
+baseurl = http: //download.ceph.com/rpm-luminous/el7/noarch
+enabled = 1
+gpgcheck = 1
+type = rpm-md
+gpgkey = https: //download.ceph.com/keys/release.asc
+__EOF__
+yum install -y ceph-deploy
+systemctl firewalld stop
+systemctl firewalld disable
+setenforce 0
+mkdir ceph
+cd ceph
+ceph-deploy new ceph-node1 ceph-node2 ceph-node3
+ceph-deploy install admin-node ceph-node1 ceph-node2 ceph-node3
+ceph-deploy mon create-initial
+#Run these following command on each node
+ceph-volume lvm create --bluestore --data disks/d1
+ceph-volume lvm create --bluestore --data disks/d2
+ceph-volume lvm create --bluestore --data disks/d3
+ceph-volume lvm create --bluestore --data disks/d4
+yum install -y ntp
+systemctl enable ntpd
+systemctl start ntpd
+#Then come back to ceph-admin
+ceph-deploy admin ceph-admin
+ceph-deploy mds create ceph-admin
+ceph-deploy mgr create chef-node1
+ceph health
+#This should return Health_OK
+
+
+
+
+
