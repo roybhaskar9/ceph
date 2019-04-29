@@ -15,11 +15,11 @@ yum install -y epel-release
 cat > /etc/yum.repos.d/ceph.repo << '__EOF__'
 [CEPH-noarch]
 name = Ceph noarch packages
-baseurl = http: //download.ceph.com/rpm-luminous/el7/noarch
+baseurl = http://download.ceph.com/rpm-luminous/el7/noarch
 enabled = 1
 gpgcheck = 1
 type = rpm-md
-gpgkey = https: //download.ceph.com/keys/release.asc
+gpgkey = https://download.ceph.com/keys/release.asc
 __EOF__
 yum install -y ceph-deploy
 systemctl firewalld stop
@@ -44,8 +44,3 @@ ceph-deploy mds create ceph-admin
 ceph-deploy mgr create chef-node1
 ceph health
 #This should return Health_OK
-
-
-
-
-
